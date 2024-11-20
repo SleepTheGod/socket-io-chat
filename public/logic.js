@@ -215,3 +215,63 @@ function autocomplete(inp, arr) {
   var jokeArray = ["/ 🤡"]
   
   autocomplete(document.getElementById("message"), jokeArray);
+  const socket = io();
+
+// DOM elements
+const messageInput = document.getElementById('message');
+const messagesList = document.getElementById('messages');
+const typingIndicator = document.getElementById('isTyping');
+
+// Send message to server
+function sendMessage() {
+    const message = messageInput.value.trim();
+    if (message) {
+        socket.emit('chat message', message); // Emit message
+        messageInput.value = ''; // Clear input
+    }
+}
+
+// Listen for messages from the server
+socket.on('chat message', (msg) => {
+    const li = document.createElement('li');
+    li.textContent = msg;
+    messagesList.appendChild(li);
+});
+
+// Typing indicator (Optional)
+let typing = false;
+messageInput.addEventListener('input', () => {
+    if (!typing) {
+        typing = true;
+        socket.emit('typing', true);
+        setTimeout(() => {
+            typing = false;
+            socket.emit('typing', false);
+        }, 1000);
+    }
+});
+
+socket.on('typing', (isTyping) => {
+    typingIndicator.textContent = isTyping ? 'Someone is typing...' : '';
+});
+
+// Emoji sending (Example)
+function sendSmile() {
+    socket.emit('chat message', '😊');
+}
+
+function sendFlirt() {
+    socket.emit('chat message', '😉');
+}
+
+function sendLol() {
+    socket.emit('chat message', '😃');
+}
+
+function sendSad() {
+    socket.emit('chat message', '🙁');
+}
+
+function sendAngry() {
+    socket.emit('chat message', '😡');
+}
